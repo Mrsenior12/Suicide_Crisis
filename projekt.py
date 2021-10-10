@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-#import geopandas
 import pycountry
 from scipy import stats
 
@@ -18,9 +17,10 @@ print(df_for_year.head())
 sns.lineplot(x = "year",y="suicides_per_100k",data=df_for_year)
 plt.show()
 # As we can se on this plot 'suicide rate for 100k' worldwide, was quite high.
-# After 1987 we can see 30% increase in 'suicide rate for 100k'. It's really hard to say what was responsible for that increase
-# After 1995 we can see that 'suicide rate for 100k' slowly decreases itself
-# It's hard to predict future 'suicide rate for 100k'.
+# After 1987 we can see 30% increase in 'suicide rate for 100k'. We can say that increase was caused by change of the political system around the world.
+# Another factor of that increase might be economic crisis. There are many factors which might or might not caused this increase. 
+# After 1995 we can see that 'suicide rate for 100k' slowly decreased itself
+# It's hard to predict future 'suicide rate for 100k', due to many factors which may occure in the future.
 
 df_for_year_sex = df.groupby(["sex","year"])['suicides_no','population'].sum()
 df_for_year_sex["suicides_per_100k"] = df_for_year_sex["suicides_no"]/df_for_year_sex['population'] * 100000
@@ -28,8 +28,8 @@ df_for_year_sex = df_for_year_sex.sort_values("year")
 sns.lineplot(x="year",y="suicides_per_100k",hue="sex",data=df_for_year_sex,style="sex",markers=["o","o"])
 plt.grid()
 plt.show()
-# As we can see on that plot, it doesn't matter which year it is,
-# 'suicide rate for 100k' for men is more than 2.5 times higher than for women 
+# As we can see on that plot, it doesn't matter which year it is, 'suicide rate for 100k' for men is more than 2.5 times higher than for women.
+# It might be caused by enviromental preassure which states that men must be very successful or they have to be the head of the family. 
 
 df_for_age = df.groupby(["year","age"])['suicides_no','population'].sum()
 df_for_age['suicides_per_100k'] = df_for_age['suicides_no']/df_for_age['population'] * 100000
@@ -39,8 +39,8 @@ sns.lineplot(x="year",y="suicides_per_100k",hue="age",data=df_for_age,style="age
 plt.xticks(rotation=45)
 plt.grid()
 plt.show()
-# As we can see on this plot 'suicide rate for 100k' gets higher with age. 
-# That's why we can say that 'age' is one of many factors of suicides.
+# As we can see on this plot 'suicide rate for 100k' gets higher with age. That's why we can say that 'age' is one of many factors of suicides.
+
 df_for_generation = df.groupby(['year','generation'])['suicides_no','population'].sum()
 df_for_generation['suicides_per_100k'] = df_for_generation['suicides_no']/df_for_generation['population'] * 100000
 generations = df['generation'].unique()
