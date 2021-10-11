@@ -1,9 +1,14 @@
+from itertools import count
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import pycountry
 from scipy import stats
+from seaborn.miscplot import palplot
+
+def formatt(x,pos):
+    return '{:1.2f}'.format(x/100)
 
 df = pd.read_csv("master.csv")
 df["age"] = df['age'].replace({'5-14 years': '05-14 years'})
@@ -99,7 +104,7 @@ tup.sort(key=lambda x:x[1],reverse=True)
 country_list = [a[0] for a in tup]
 country_suicide = [a[1] for a in tup]
 
-plt.figure(figsize=(8,32))
+plt.figure(figsize=(9,10))
 sns.barplot(x=country_suicide[:20],y=country_list[:20],palette="GnBu")
 plt.yticks(rotation=45)
 plt.ylabel("countrie")
@@ -109,10 +114,10 @@ plt.grid(linestyle="--")
 plt.show()
 
 
-df_total = pd.DataFrame(df_total)
-df_total = df_total.rename(columns={0:'suicides_per_100k_for_year'},inplace=False).reset_index()
-df_top_10 = df_total[df_total['country'].isin(country_list[:10])]
-plt.figure(figsize=(9,32))
+df_total1 = pd.DataFrame(df_total)
+df_total1 = df_total1.rename(columns={0:'suicides_per_100k_for_year'},inplace=False).reset_index()
+df_top_10 = df_total1[df_total1['country'].isin(country_list[:10])]
+plt.figure(figsize=(8,10))
 sns.lineplot(x='year',y='suicides_per_100k_for_year',hue='country',data=df_top_10,style='country',markers=['o' for i in range(10)],dashes=False)
 plt.grid(linestyle="--")
 plt.show()
@@ -123,11 +128,58 @@ plt.show()
 # But as far as I know no one accepted as the main factor of that trend.
 
 df_gdp = df.groupby(["country","year"])["gdp_per_capita"].mean()
-plt.figure(figsize=(9,24))
+plt.figure(figsize=(9,10))
 for country in country_list[:10]:
     plt.plot(df_gdp[country].index,df_gdp[country].values, label=country, marker="o")
 plt.xlabel("year")
 plt.ylabel("gdp_per_capita")
 plt.legend()
 plt.grid(linestyle="--")
+plt.show()
+# As we can see on this image 'GDP per capit' for every country between 1985 and 2000 didn't changed as much as I thought. 
+# In other words, economic situation in these countries were stagnant. We can see that 'GDP_per_capita' started to grow after 2002, 
+# but there is drop in GPD_per_capita after 2008 due to financial crisis which occured that year.
+# Now I want to now if there is relationship between GDP_per_capita and suicides_rate
+
+fig,axa1 = plt.subplots(2,1,figsize=(12,12))
+for country in country_list[:10]:
+    sns.regplot(ax=axa1[0],x=df_gdp[country].values,y=df_total[country].values,label=country)
+#axa1[0].yaxis.set_major_formatter(formatt)
+axa1[0].set_xlim(0,30000)
+axa1[0].set_xlabel("gdp_per_capita")
+axa1[0].set_ylabel("ratio of suicides for 100k")
+axa1[0].grid(linestyle="--")
+axa1[0].legend()
+
+corr_dict = {}
+for country in country_list[:10]:
+    slope,intercept,r_value,p_value,std_value = stats.linregress(df_gdp[country].values,df_total[country].values)
+    corr_dict[country] = float(r_value)
+sns.barplot(ax=axa1[1],x=list(corr_dict.keys()),y=list(corr_dict.values()),palette = "YlOrRd")
+axa1[1].xaxis.set_tick_params(rotation=90)
+axa1[1].set_xlabel("Country")
+axa1[1].set_ylabel("correlation coeff.")
+axa1[1].set_title("GDP vs suicides for 100k")
+plt.show()
+
+# As we can see on the top plot rate of suicides drops with increase of GDP_per_capita. We can say that GDP_per_capita is one of factors which decrease rate of suicides.
+# Also we can see on the bottom image that the suicide rate is strongly correlated to the GDP_per_capita of top10 countries.
+# Now i would like to see if other countries have the same trend.
+
+corr_dict = {}
+p_val_dict = {}
+for country in country_list[:]:
+    slope,intercept,r_value,p_value,std_value = stats.linregress(df_gdp[country].values,df_total[country].values)
+    corr_dict[country] = float(r_value)
+    p_val_dict[country] = float(p_value)
+
+gdp_tup = list(corr_dict.items())
+gdp_tup.sort(key = lambda x:x[1],reverse=False)
+gdp_rel = {a[0]:a[1] for a in gdp_tup}
+plt.figure(figsize=(16,10))
+sns.barplot(x=list(gdp_rel.keys()),y=list(gdp_rel.values()),palette="YlOrRd")
+plt.xticks(rotation=90)
+plt.xlabel("country")
+plt.ylabel("correlation coeff.")
+plt.title("GDP vs suicides")
 plt.show()
