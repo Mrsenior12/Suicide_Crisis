@@ -131,7 +131,7 @@ fig,axa1 = plt.subplots(1,2,figsize=(12,10))
 sns.lineplot(ax=axa1[0],x='year',y='suicides_per_100k_for_year',hue='country',data=df_top_10,style='country',markers=['o' for i in range(10)],dashes=False)
 axa1[0].grid(linestyle="--")
 axa1[0].set_ylabel("Suicides per 100K")
-axa1[0].set_title("Cuicides vs Year")
+axa1[0].set_title("Suicides vs Year")
 # As we can se on this plot most of coutries from Top 10 were members of Soviet Union
 # It should be clearly that suicide rate per 100k for these countries is high
 # due to economic and democratic transfer which occured in former Soviet Union countries between 1990 and 2000.
@@ -156,7 +156,7 @@ plt.show()
 # but there is drop in GPD_per_capita after 2008 due to financial crisis which occured that year.
 # Now I want to now if there is relationship between GDP_per_capita and suicides_rate
 
-fig,axa2 = plt.subplots(2,1,figsize=(12,12))
+fig,axa2 = plt.subplots(2,1,figsize=(10,10))
 for country in top_10_country[:10]:
     sns.regplot(ax=axa2[0],x=df_gdp[country].values,y=df_total[country].values,label=country)
 axa2[0].set_xlim(0,30000)
@@ -246,7 +246,10 @@ axa3[1].set_title("Suicides vs Year")
 plt.tight_layout()
 plt.show()
 # First thing we can see is GDP per capita and Suicides for 100K of Korea are growing faster than in other countries.
-# Does it mean there is social problem which led to this situation? Let's see
+# Does it mean there is social problem which led to this situation? 
+# Also there is strange behavior in Suicides for Montenegro it might me caused due to lack on data for this country.
+# Let's see what's going on
+
 
 Korea = df[df["country"] == "Korea, Republic of"]
 Korea_suicides = Korea.groupby(["year","age"])["suicides_no"].sum()*100000
@@ -254,7 +257,19 @@ Korea_population = Korea.groupby(["year","age"])["population"].sum()
 Korea_rate = Korea_suicides/Korea_population
 df_korea = pd.DataFrame(Korea_rate)
 df_korea = df_korea.rename(columns={0:'suicides_per_100k_for_age'},inplace=False).reset_index()
-
-plt.figure(figsize=(10,10))
-sns.barplot(x="year",y="suicides_per_100k_for_age",hue="age",ci=None,data=df_korea)
+plt.figure(figsize=(18,10))
+sns.barplot(x="year",y="suicides_per_100k_for_age",hue="age",ci=None,data=df_korea,palette='bright')
+plt.xticks(rotation=90)
+plt.title("Suicide rato of Korea")
 plt.show()
+# What's going on with old people in Korea. It's really strange because after 2001 number of Suicides for 100K doubled for people over 75 years old.
+# Does it mean Korean society isn't friendly to the old people or there is too big enviromental pressure and they can't stand it?
+# It's hard to say, but from previous plots we know that age is factor which increases Suicides rate.
+# There are many things which should be done to lower this trend, for example country should setup social welfare to look after the old people.
+# Also we can see that rate of suicides after 1994 grows for people who're older than 24. 
+# This phenomenon reflects the increasing burden on society, like salary, academic pressure, family and so on.
+
+# Lastly I want to see how it looks for countries which has weak positive and negative correlation
+weak_positive = {a:b for a,b in corr_dict.items() if -0.3 <= b < 0}
+nooo = no_relation_gdp = [i for i in country_list[:20] if i in weak_positive.keys()]
+print(nooo)
