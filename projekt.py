@@ -5,8 +5,10 @@ import pandas as pd
 import pycountry
 from scipy import stats
 
-df = pd.read_excel("master.xlsx")
+df = pd.read_csv("master.csv")
 df["age"] = df['age'].replace({'5-14 years': '05-14 years'})
+df = df.rename(columns={' gdp_for_year ($) ':'gdp_for_year','gdp_per_capita ($)':'gdp_per_capita'},inplace=False)
+
 print(df.head())
 print(df.shape)
 print(df.info())
@@ -26,7 +28,7 @@ df_for_year_sex = df.groupby(["sex","year"])['suicides_no','population'].sum()
 df_for_year_sex["suicides_per_100k"] = df_for_year_sex["suicides_no"]/df_for_year_sex['population'] * 100000
 df_for_year_sex = df_for_year_sex.sort_values("year")
 sns.lineplot(x="year",y="suicides_per_100k",hue="sex",data=df_for_year_sex,style="sex",markers=["o","o"])
-plt.grid()
+plt.grid(linestyle="--")
 plt.show()
 # As we can see on that plot, it doesn't matter which year it is, 'suicide rate for 100k' for men is more than 2.5 times higher than for women.
 # It might be caused by enviromental preassure which states that men must be very successful or they have to be the head of the family. 
@@ -37,7 +39,7 @@ age = df['age'].unique()
 plt.figure(figsize=(9,6))
 sns.lineplot(x="year",y="suicides_per_100k",hue="age",data=df_for_age,style="age",markers=['o' for i in range(len(age))],dashes=False)
 plt.xticks(rotation=45)
-plt.grid()
+plt.grid(linestyle="--")
 plt.show()
 # As we can see on this plot 'suicide rate for 100k' gets higher with age. That's why we can say that 'age' is one of many factors of suicides.
 
@@ -46,7 +48,7 @@ df_for_generation['suicides_per_100k'] = df_for_generation['suicides_no']/df_for
 generations = df['generation'].unique()
 plt.figure(figsize=(9,6))
 sns.lineplot(x='year',y='suicides_per_100k',hue="generation",data=df_for_generation,style="generation",markers=['o' for i in range(len(generations))],dashes=False)
-plt.grid()
+plt.grid(linestyle="--")
 plt.show()
 # As we can see the highest rate of suicides per 100k before 2000 has 'G.I Generation' which is also known as WW2 Generation.
 # The rate is so high due to worldwide depression before WW2, income, profit,taxes and so on.
@@ -103,7 +105,7 @@ plt.yticks(rotation=45)
 plt.ylabel("countrie")
 plt.xlabel("suicides per 100k")
 plt.title("20 countries with highest suicides per 100k")
-plt.grid()
+plt.grid(linestyle="--")
 plt.show()
 
 
@@ -112,20 +114,20 @@ df_total = df_total.rename(columns={0:'suicides_per_100k_for_year'},inplace=Fals
 df_top_10 = df_total[df_total['country'].isin(country_list[:10])]
 plt.figure(figsize=(9,32))
 sns.lineplot(x='year',y='suicides_per_100k_for_year',hue='country',data=df_top_10,style='country',markers=['o' for i in range(10)],dashes=False)
-plt.grid()
+plt.grid(linestyle="--")
 plt.show()
 # As we can se on this plot most of coutries from Top 10 were members of Soviet Union
 # It should be clearly that suicide rate per 100k for these countries is high
 # due to economic and democratic transfer which occured in former Soviet Union countries between 1990 and 2000.
 # Although there are many studies which mentions alcoholism,economic hardship depression as another factors of higher rate of suicide.
-# But as far as I know no one which is the main factor of that trend.
+# But as far as I know no one accepted as the main factor of that trend.
 
-df_new = pd.read_excel("master1.xlsx")
-df_merged = df_top_10.merge(df_new,on='country',how='left')
-df_merged = df_merged.rename(columns={' gdp_for_year ($) ':'gdp_for_year','gdp_per_capita ($)':'gdp_per_capita'},inplace=False)
-print(df_merged["country"].unique())
-print(df_merged["gdp_for_year"])
-
-df_gdp_for_year = df_merged.groupby(['country','year']).agg('mean','gdp_per_capita')
-#sns.lineplot(x=df_gdp_for_year.index.get_level_values(1),y="gdp_per_capita",hue=df_gdp_for_year.index.get_level_values(0),data=df_gdp_for_year)
-#plt.show()
+df_gdp = df.groupby(["country","year"])["gdp_per_capita"].mean()
+plt.figure(figsize=(9,24))
+for country in country_list[:10]:
+    plt.plot(df_gdp[country].index,df_gdp[country].values, label=country, marker="o")
+plt.xlabel("year")
+plt.ylabel("gdp_per_capita")
+plt.legend()
+plt.grid(linestyle="--")
+plt.show()
