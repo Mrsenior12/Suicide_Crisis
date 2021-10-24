@@ -269,7 +269,12 @@ plt.show()
 # Also we can see that rate of suicides after 1994 grows for people who're older than 24. 
 # This phenomenon reflects the increasing burden on society, like salary, academic pressure, family and so on.
 
-# Lastly I want to see how it looks for countries which has weak positive and negative correlation
-weak_positive = {a:b for a,b in corr_dict.items() if -0.3 <= b < 0}
-nooo = no_relation_gdp = [i for i in country_list[:20] if i in weak_positive.keys()]
-print(nooo)
+# In Conclusion, the suicide rate is related to several factors. First, national GDP per person. We have seen that the suicide rate in many countries is highly correlated with the gdp of the whole country, 
+# which shows that the degree of national wealth has a certain degree of reduction in suicide rate.
+
+# Second, the age. According to the suicide rate of each level of age, the rate of elderly is higher, 
+# so young people should care more about the elderly. Moreover, the country welfare of the elderly may also impact the rate.
+
+# Third, the social pressure. A healthy society can make citizens feel safe and satisfied, 
+# so how to relieve the social pressure becomes a significant topic for every country. 
+# Our purpose is not only reduce the suicide rate but also to build a better world.
